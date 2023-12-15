@@ -3,31 +3,31 @@ import Image from "next/image";
 import { useState } from "react";
 import axios from "axios";
 
-export default async function Home() {
-  const getToken = async (authorizationCode: string) => {
-    try {
-      const response = await axios.post("ZOHOOauthTokenURL", {
-        client_id: process.env.ZOHO_CLIENT_ID,
-        client_secret: process.env.ZOHO_CLIENT_SECRET,
-        redirect_uri: "http://localhost:3000/",
-        code: authorizationCode,
-        grant_type: "authorization_code",
-      });
+export default function Home() {
+  // const getToken = async (authorizationCode: string) => {
+  //   try {
+  //     const response = await axios.post("ZOHOOauthTokenURL", {
+  //       client_id: process.env.ZOHO_CLIENT_ID,
+  //       client_secret: process.env.ZOHO_CLIENT_SECRET,
+  //       redirect_uri: "http://localhost:3000/",
+  //       code: authorizationCode,
+  //       grant_type: "authorization_code",
+  //     });
 
-      return response.data.access_token;
-    } catch (error) {
-      console.error("Error fetching access token:", error);
-      return null;
-    }
-  };
+  //     return response.data.access_token;
+  //   } catch (error) {
+  //     console.error("Error fetching access token:", error);
+  //     return null;
+  //   }
+  // };
 
   // Usage
-  const authorizationCode =
-    "1000.bcc286bdd78690c179461bac875d39c2.f06c4f9924e55f8b1651ad61171b13c9";
+  // const authorizationCode =
+  //   "1000.bcc286bdd78690c179461bac875d39c2.f06c4f9924e55f8b1651ad61171b13c9";
 
-  // Fetch access token
-  const accessToken = await getToken(authorizationCode);
-  console.log("Access Token:", accessToken);
+  // // Fetch access token
+  // const accessToken = await getToken(authorizationCode);
+  // console.log("Access Token:", accessToken);
 
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -53,15 +53,12 @@ export default async function Home() {
       return;
     } else {
       // Send the data in a POST request
-      const sendEmail = await fetch("/api/sendEmail", {
+      const getToken = await fetch("/api/auth", {
         method: "POST",
-        body: formData,
       });
 
-      if (sendEmail.ok) {
-        location.reload();
-      } else {
-        return;
+      if (getToken.ok) {
+        console.log("good");
       }
     }
   }
