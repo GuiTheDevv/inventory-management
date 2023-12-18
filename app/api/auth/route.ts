@@ -1,61 +1,30 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-// const getToken = async (authorizationCode: string) => {
-//   try {
-//     const response = await axios.post("ZOHOOauthTokenURL", {
-//       client_id: process.env.ZOHO_CLIENT_ID,
-//       client_secret: process.env.ZOHO_CLIENT_SECRET,
-//       redirect_uri: "http://localhost:3000/",
-//       code: authorizationCode,
-//       grant_type: "authorization_code",
-//     });
-
-//     return response.data.access_token;
-//   } catch (error) {
-//     console.error("Error fetching access token:", error);
-//     return null;
-//   }
-// };
-
-// // Usage
-// const authorizationCode =
-//   "1000.bcc286bdd78690c179461bac875d39c2.f06c4f9924e55f8b1651ad61171b13c9";
-
-// // Fetch access token
-// const accessToken = await getToken(authorizationCode);
-// console.log("Access Token:", accessToken);
-
 export async function POST(req: NextRequest) {
   const getToken = async (authorizationCode: string) => {
     try {
-      const url = `https://accounts.zoho.com/oauth/v2/token?
-      client_id=${process.env.ZOHO_CLIENT_ID}
-      &client_secret=${process.env.ZOHO_CLIENT_SECRET}
-      &grant_type=authorization_code
-      &code=${authorizationCode}
-      &redirect_uri=http://localhost:3000/`;
+      const url = `https://accounts.zoho.com/oauth/v2/auth?scope=ZohoInventory.FullAccess.all&client_id=1004.7RFUQ9Q9YJW6NO2A186TKNDIHXD79P&response_type=code&redirect_uri=http://www.zoho.com/inventory&access_type=offline`;
 
-      const response = await fetch(url, {
-        method: "POST",
-      });
+      const response = await axios.post(url);
+      const data = await response.data;
 
-      const data = await response.json();
-
+      console.log(data);
       return data;
-    } catch (error) {
-      console.error("Error fetching access token:", error);
-      return error;
+    } catch (error: any) {
+      // Log the detailed error information
+      console.log("Error fetching access token:", error);
+      return { error: error.message };
     }
   };
 
   // Usage
   const authorizationCode =
-    "1000.bcc286bdd78690c179461bac875d39c2.f06c4f9924e55f8b1651ad61171b13c9";
+    "1000.009fe54c9c718d570def774b21c96d4f.526a7acc66fca2fc0a3aa7b5c6dec830";
 
   // Fetch access token
   const accessToken = await getToken(authorizationCode);
   console.log("Access Token:", accessToken);
 
-  return NextResponse.json({ "Access Token": accessToken });
+  return NextResponse.json({ "Code:": accessToken });
 }

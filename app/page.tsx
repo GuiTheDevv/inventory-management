@@ -132,6 +132,7 @@ export default function Home() {
                 className="rounded-md px-3 py-2 hover:cursor-text drop-shadow-xl"
                 type="date"
                 name="StartDateInput"
+                id="StartDateInput"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -149,6 +150,7 @@ export default function Home() {
                 className="rounded-md px-3 py-2 hover:cursor-text drop-shadow-xl"
                 type="date"
                 name="EndDateInput"
+                id="EndDateInput"
                 value={endDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
