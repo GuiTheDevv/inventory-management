@@ -65,58 +65,10 @@ export default function Home() {
 
   async function getSalesReceipts(event: React.FormEvent) {
     event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-
-    console.log(startDate + " " + endDate);
-
-    // Check if any required fields are empty
-    if (startDate === "" || endDate === "") {
-      alert("Please verify dates chosen");
-      return;
-    } else {
-      // Send the data in a POST request
-      const sendEmail = await fetch("/api/sendEmail", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (sendEmail.ok) {
-        location.reload();
-      } else {
-        return;
-      }
-    }
   }
 
   async function getInoices(event: React.FormEvent) {
     event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-
-    // Check if any required fields are empty
-    if (startDate === "" || endDate === "") {
-      alert("Please verify dates chosen");
-      return;
-    } else {
-      // Send the data in a POST request
-      const sendEmail = await fetch("/api/sendEmail", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (sendEmail.ok) {
-        location.reload();
-      } else {
-        return;
-      }
-    }
   }
 
   return (
