@@ -2,10 +2,9 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const getToken = async (authorizationCode: string) => {
+  const getToken = async () => {
     try {
-      const url = `https://accounts.zoho.com/oauth/v2/auth?scope=ZohoInventory.FullAccess.all&client_id=1004.7RFUQ9Q9YJW6NO2A186TKNDIHXD79P&response_type=code&redirect_uri=http://www.zoho.com/inventory&access_type=offline`;
-
+      const url = `https://accounts.zoho.com/oauth/v2/token?refresh_token=1000.c82b8f70ed42ec406199b68520df1d7b.2ab82f7b825d1dd5913dae6dcd4ad5da&client_id=1000.2FAGLA9VTGQEWYPAZ9T8TKI3KXYW6E&client_secret=709689cef5c732f00d16f27d4a304e160541c23b13&redirect_uri=http://localhost:3000/&grant_type=refresh_token`;
       const response = await axios.post(url);
       const data = await response.data;
 
@@ -23,8 +22,8 @@ export async function POST(req: NextRequest) {
     "1000.009fe54c9c718d570def774b21c96d4f.526a7acc66fca2fc0a3aa7b5c6dec830";
 
   // Fetch access token
-  const accessToken = await getToken(authorizationCode);
-  console.log("Access Token:", accessToken);
+  const grantToken = await getToken();
+  console.log("grant Token:", grantToken);
 
-  return NextResponse.json({ "Code:": accessToken });
+  return NextResponse.json({ "Code:": grantToken });
 }
