@@ -2,6 +2,8 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  const body = await req.formData();
+  console.log("ID: ", body.get("id"));
   const getToken = async () => {
     try {
       const url = `https://accounts.zoho.com/oauth/v2/token?refresh_token=1000.c82b8f70ed42ec406199b68520df1d7b.2ab82f7b825d1dd5913dae6dcd4ad5da&client_id=1000.2FAGLA9VTGQEWYPAZ9T8TKI3KXYW6E&client_secret=709689cef5c732f00d16f27d4a304e160541c23b13&redirect_uri=http://localhost:3000/&grant_type=refresh_token`;
@@ -17,13 +19,31 @@ export async function POST(req: NextRequest) {
     }
   };
 
-  // Usage
-  const authorizationCode =
-    "1000.009fe54c9c718d570def774b21c96d4f.526a7acc66fca2fc0a3aa7b5c6dec830";
+  const downloadInvoice = async () => {
+    try {
+      const url = `https://www.zohoapis.com/inventory/v1/invoices/${body.get(
+        "id"
+      )}?organization_id=837554536`;
+      const authToken = access.access_token;
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${authToken}`,
+        },
+      });
+      const data = await response.data;
+
+      console.log(data);
+      return data;
+    } catch (error: any) {
+      // Log the detailed error information
+      console.log("Error fetching invoice:", error);
+      return { error: error.message };
+    }
+  };
 
   // Fetch access token
-  const grantToken = await getToken();
-  console.log("grant Token:", grantToken);
+  const access = await getToken();
+  const invoice = await downloadInvoice();
 
-  return NextResponse.json({ "Code:": grantToken });
+  return NextResponse.json({ invoice });
 }
