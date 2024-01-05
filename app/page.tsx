@@ -98,11 +98,18 @@ export default function Home() {
   async function handleDownload(id: number) {
     const formData = new FormData();
     formData.append("id", id.toString());
-    const response = await fetch(`/api/downloadInvoice`, {
-      method: "POST",
-      body: formData,
-    });
-    console.log("id", id);
+
+    if (identificationString == "Sales Order") {
+      const response = await fetch(`/api/downloadSaleOrder`, {
+        method: "POST",
+        body: formData,
+      });
+    } else if (identificationString == "Invoices") {
+      const response = await fetch(`/api/downloadInvoice`, {
+        method: "POST",
+        body: formData,
+      });
+    }
   }
 
   const getValueToDownload = (item: any) => {

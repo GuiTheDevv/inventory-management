@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
     }
   };
 
-  const downloadInvoice = async () => {
+  const downloadSaleOrder = async () => {
     try {
-      const url = `https://www.zohoapis.com/inventory/v1/invoices/${body.get(
+      const url = `https://www.zohoapis.com/inventory/v1/salesorders/${body.get(
         "id"
       )}?organization_id=837554536`;
       const authToken = access.access_token;
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   // Fetch access token
   const access = await getToken();
-  const invoice = await downloadInvoice();
+  const saleOrder = await downloadSaleOrder();
 
-  return NextResponse.json({ invoice });
+  return NextResponse.json({ saleOrder });
 }
