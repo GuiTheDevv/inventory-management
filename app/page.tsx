@@ -1,8 +1,5 @@
 "use client";
-import Image from "next/image";
 import { useState } from "react";
-import axios from "axios";
-import { string } from "zod";
 
 export default function Home() {
   const [startDate, setStartDate] = useState(
@@ -15,32 +12,6 @@ export default function Home() {
   const [identificationString, setIdentificationString] =
     useState<string>("Identification");
   const [selectedArray, setSelectedArray] = useState<any[]>([]);
-
-  async function getSalesOrder(event: React.FormEvent) {
-    event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-
-    // Check if any required fields are empty
-    if (startDate === "" || endDate === "") {
-      alert("Please verify dates chosen");
-      return;
-    } else {
-      // Send the data in a POST request
-      const getToken = await fetch("/api/getSalesOrder", {
-        method: "POST",
-      });
-
-      if (getToken.ok) {
-        const response = await getToken.json();
-        setSelectedArray(response.data);
-      }
-    }
-    setIdentificationString("Sales Order");
-  }
 
   async function handleDownload(id: number) {
     const formData = new FormData();
@@ -82,8 +53,12 @@ export default function Home() {
         setSelectedArray(result.data);
       }
     } else if (e.target.value == "Sales Order") {
+      const formData = new FormData();
+      formData.append("startDate", startDate);
+      formData.append("endDate", endDate);
       const response = await fetch(`/api/getSalesOrder`, {
         method: "POST",
+        body: formData,
       });
       if (response.ok) {
         const result = await response.json();
@@ -142,6 +117,7 @@ export default function Home() {
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
+                  setEndDate(e.target.value);
                 }}
               />
             </div>
@@ -159,7 +135,12 @@ export default function Home() {
                 id="EndDateInput"
                 value={endDate}
                 onChange={(e) => {
-                  setStartDate(e.target.value);
+                  e.preventDefault();
+                  setEndDate(e.target.value);
+                  if (startDate >= e.target.value) {
+                    setStartDate(e.target.value);
+                    console.log(startDate + " ... " + endDate);
+                  }
                 }}
               />
             </div>

@@ -2,6 +2,7 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  const body = await req.formData();
   const getToken = async () => {
     try {
       const url = `https://accounts.zoho.com/oauth/v2/token?refresh_token=1000.c82b8f70ed42ec406199b68520df1d7b.2ab82f7b825d1dd5913dae6dcd4ad5da&client_id=1000.2FAGLA9VTGQEWYPAZ9T8TKI3KXYW6E&client_secret=709689cef5c732f00d16f27d4a304e160541c23b13&redirect_uri=http://localhost:3000/&grant_type=refresh_token`;
@@ -19,7 +20,12 @@ export async function POST(req: NextRequest) {
 
   const getSalesOrder = async () => {
     try {
-      const url = `https://www.zohoapis.com/inventory/v1/salesorders?organization_id=837554536`;
+      // const url = `https://www.zohoapis.com/inventory/v1/salesorders?organization_id=837554536/from_date=${body.get(
+      //   "startDate"
+      // )}/to_date=${body.get("endDate")}`;
+      const url = `https://inventory.zoho.com/api/v1/reports/salesbysalesperson?page=1&per_page=500&organization_id=837554536&from_date=${body.get(
+        "startDate"
+      )}&to_date=${body.get("endDate")}`;
       const authToken = access.access_token;
       const response = await axios.get(url, {
         headers: {
