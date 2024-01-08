@@ -17,8 +17,29 @@ export async function POST(req: NextRequest) {
     }
   };
 
+  const getPurchaiseReceives = async () => {
+    try {
+      const url = `https://www.zohoapis.com/inventory/v1/purchasereceives/?organization_id=837554536`;
+      const authToken = access.access_token;
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${authToken}`,
+        },
+      });
+      const data = await response.data;
+
+      console.log(data);
+      return data;
+    } catch (error: any) {
+      // Log the detailed error information
+      console.log("Error fetching invoices:", error);
+      return { error: error.message };
+    }
+  };
+
   // Fetch access token
   const access = await getToken();
+  const purchaiseReceives = await getPurchaiseReceives();
 
-  return NextResponse.json({ "Code:": access.access_token });
+  return NextResponse.json({ data: purchaiseReceives.purchasereceives });
 }

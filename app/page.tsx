@@ -42,59 +42,6 @@ export default function Home() {
     setIdentificationString("Sales Order");
   }
 
-  async function getSalesReceipts(event: React.FormEvent) {
-    event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-
-    // Check if any required fields are empty
-    if (startDate === "" || endDate === "") {
-      alert("Please verify dates chosen");
-      return;
-    } else {
-      // Send the data in a POST request
-      const getToken = await fetch("/api/getSalesReceipt", {
-        method: "POST",
-      });
-
-      if (getToken.ok) {
-        const response = await getToken.json();
-        setSelectedArray(response.data);
-      }
-    }
-    setIdentificationString("Sales Receipt");
-  }
-
-  async function getInoices(event: React.FormEvent) {
-    event.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("startDate", startDate);
-    formData.append("endDate", endDate);
-
-    // Check if any required fields are empty
-    if (startDate === "" || endDate === "") {
-      alert("Please verify dates chosen");
-      return;
-    } else {
-      // Send the data in a POST request
-      const getToken = await fetch("/api/getInvoices", {
-        method: "POST",
-      });
-
-      if (getToken.ok) {
-        const response = await getToken.json();
-        console.log(response.data.invoices);
-        setSelectedArray(response.data.invoices);
-      }
-    }
-    setIdentificationString("Invoice");
-  }
-
   async function handleDownload(id: number) {
     const formData = new FormData();
     formData.append("id", id.toString());
@@ -104,7 +51,7 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-    } else if (identificationString == "Invoices") {
+    } else if (identificationString == "Invoice") {
       const response = await fetch(`/api/downloadInvoice`, {
         method: "POST",
         body: formData,
@@ -115,13 +62,67 @@ export default function Home() {
   const getValueToDownload = (item: any) => {
     if (identificationString === "Sales Order") {
       return item.salesorder_id;
-    } else if (identificationString === "Invoice") {
+    } else if (identificationString === "Invoices") {
       return item.invoice_id;
     } else if (identificationString === "Sales Receipt") {
       return item.salesreceipt_id;
     } else {
       return null;
     }
+  };
+
+  const handleOptionChange = async (e: any) => {
+    setSelectedArray([]);
+    if (e.target.value == "Transfer Orders") {
+      const response = await fetch(`/api/getTransferOrders`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    } else if (e.target.value == "Sales Order") {
+      const response = await fetch(`/api/getSalesOrder`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    } else if (e.target.value == "Shipment Orders") {
+      const response = await fetch(`/api/getShipmentOrders`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    } else if (e.target.value == "Invoices") {
+      const response = await fetch(`/api/getInvoices`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    } else if (e.target.value == "Purchaise Orders") {
+      const response = await fetch(`/api/getPurchaiseOrders`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    } else if (e.target.value == "Purchaise Receives") {
+      const response = await fetch(`/api/getPurchaiseReceives`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setSelectedArray(result.data);
+      }
+    }
+    setIdentificationString(e.target.value.toString());
   };
 
   return (
@@ -163,25 +164,60 @@ export default function Home() {
               />
             </div>
           </div>
-          <div className="flex w-full justify-center items-center gap-3 text-white pb-20">
-            <button
-              className="bg-blue-500 px-4 hover:drop-shadow-lg py-1.5 rounded-md hover:scale-110 duration-200 ease-in-out"
-              onClick={getSalesOrder}
-            >
-              Sales Order
-            </button>
-            <button
-              className="bg-blue-500 px-4 hover:drop-shadow-lg py-1.5 rounded-md hover:scale-110 duration-200 ease-in-out"
-              onClick={getSalesReceipts}
-            >
-              Sales Receipt
-            </button>
-            <button
-              className="bg-blue-500 px-4 hover:drop-shadow-lg py-1.5 rounded-md hover:scale-110 duration-200 ease-in-out"
-              onClick={getInoices}
-            >
-              Invoices
-            </button>
+          <div className="flex w-full items-center justify-center pb-16">
+            <div className="relative inline-block text-left">
+              <div>
+                <span className="rounded-md shadow-sm">
+                  <select
+                    onChange={handleOptionChange}
+                    className="block text-black cursor-pointer appearance-none w-full border border-gray-300 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500"
+                  >
+                    <option
+                      value=""
+                      disabled
+                      selected
+                      className="cursor-pointer"
+                    >
+                      Select ...
+                    </option>
+                    <option value="Transfer Orders" className="cursor-pointer">
+                      Transfer Orders
+                    </option>
+                    <option value="Sales Order" className="cursor-pointer">
+                      Sales Order
+                    </option>
+                    <option value="Shipment Orders" className="cursor-pointer">
+                      Shipmeant Orders
+                    </option>
+                    <option value="Invoices" className="cursor-pointer">
+                      Invoices
+                    </option>
+                    <option value="Purchaise Orders" className="cursor-pointer">
+                      Purchaise Orders
+                    </option>
+                    <option
+                      value="Purchaise Receives"
+                      className="cursor-pointer"
+                    >
+                      Purchaise Receives
+                    </option>
+                  </select>
+                </span>
+              </div>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <svg
+                  className="w-5 h-5 fill-current text-gray-700"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10 12.586l4.293-4.293a1 1 0 011.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 12.586z"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
           <div className="flex flex-col w-full justify-center items-center text-white">
             <p className="text-3xl font-semibold tracking-wide border-b-2 mb-12 border-white">
@@ -191,7 +227,12 @@ export default function Home() {
               <thead className="border-b font-medium dark:border-neutral-500">
                 <tr className="">
                   <th scope="col" className="px-6 py-4">
-                    Customer Name
+                    {identificationString === "Purchaise Receives" ||
+                    identificationString === "Purchaise Orders"
+                      ? "Vendor Name"
+                      : identificationString === "Transfer Orders"
+                      ? "Created by"
+                      : "Customer Name"}
                   </th>
                   <th scope="col" className="px-6 py-4 ">
                     {identificationString} #
@@ -205,15 +246,33 @@ export default function Home() {
                 {selectedArray.map((item, index) => (
                   <tr key={index} className="border-b dark:border-neutral-500">
                     <td className="whitespace-nowrap px-6 py-4">
-                      {item.customer_name}
+                      {identificationString === "Sales Order"
+                        ? item.customer_name
+                        : identificationString === "Invoices"
+                        ? item.customer_name
+                        : identificationString === "Purchaise Receives"
+                        ? item.vendor_name
+                        : identificationString === "Purchaise Orders"
+                        ? item.vendor_name
+                        : identificationString === "Shipment Orders"
+                        ? item.vendor_name
+                        : identificationString === "Transfer Orders"
+                        ? item.created_by_name
+                        : null}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       {identificationString === "Sales Order"
                         ? item.salesorder_number
-                        : identificationString === "Invoice"
+                        : identificationString === "Invoices"
                         ? item.invoice_number
-                        : identificationString === "Sales Receipt"
-                        ? item.sales_receipt
+                        : identificationString === "Purchaise Receives"
+                        ? item.purchasereceive_number
+                        : identificationString === "Purchaise Orders"
+                        ? item.purchaseorder_number
+                        : identificationString === "Shipment Orders"
+                        ? item.shipment_number
+                        : identificationString === "Transfer Orders"
+                        ? item.transfer_order_number
                         : null}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">{item.date}</td>

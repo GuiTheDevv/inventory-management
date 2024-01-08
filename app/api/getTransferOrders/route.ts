@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
     }
   };
 
-  const getInvoices = async () => {
+  const getTransferOrders = async () => {
     try {
-      const url = `https://www.zohoapis.com/inventory/v1/invoices?organization_id=837554536`;
+      const url = `https://www.zohoapis.com/inventory/v1/transferorders?organization_id=837554536`;
       const authToken = access.access_token;
       const response = await axios.get(url, {
         headers: {
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   // Fetch access token
   const access = await getToken();
-  const invoices = await getInvoices();
+  const transferOrders = await getTransferOrders();
 
-  return NextResponse.json({ data: invoices.invoices });
+  return NextResponse.json({ data: transferOrders.transfer_orders });
 }
