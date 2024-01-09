@@ -1,6 +1,16 @@
 "use client";
 import { useState } from "react";
 
+// type FileForConversion = {
+//   date: Date;
+//   Name: string;
+//   Memo: string;
+//   DebitAcc: string;
+//   CreditAcc: string;
+//   Debit: number;
+//   Credit: number;
+// };
+
 export default function Home() {
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -13,7 +23,25 @@ export default function Home() {
     useState<string>("Identification");
   const [selectedArray, setSelectedArray] = useState<any[]>([]);
 
+  const [selectAllItems, setSelectAllItems] = useState(false);
+  const [individualCheckboxes, setIndividualCheckboxes] = useState(
+    Array(selectedArray.length).fill(false)
+  );
+
+  const handleSelectAllChange = (checked: any) => {
+    setSelectAllItems(checked);
+    setIndividualCheckboxes(Array(selectedArray.length).fill(checked));
+  };
+
+  const handleIndividualCheckboxChange = (index: number) => {
+    const updatedCheckboxes = [...individualCheckboxes];
+    updatedCheckboxes[index] = !updatedCheckboxes[index];
+    setIndividualCheckboxes(updatedCheckboxes);
+    setSelectAllItems(updatedCheckboxes.every((checkbox) => checkbox)); // Update Select All based on all checkboxes
+  };
+
   async function handleDownload(id: number) {
+    var data: any;
     const formData = new FormData();
     formData.append("id", id.toString());
 
@@ -22,12 +50,31 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
+      data = response;
     } else if (identificationString == "Invoice") {
       const response = await fetch(`/api/downloadInvoice`, {
         method: "POST",
         body: formData,
       });
+      data = response;
     }
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      "Date,Name,Memo,DebitAccount,CreditAccount,Debit,Credit\n" +
+      data
+        .map(
+          (item: any) =>
+            `${item.date},${item.customer_name},${item.debit_account},${item.credit_account},${item.debit},${item.credit}`
+        )
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "user_list.csv");
+    document.body.appendChild(link);
+    link.click();
   }
 
   const getValueToDownload = (item: any) => {
@@ -221,6 +268,19 @@ export default function Home() {
                   <th scope="col" className="px-6 py-4">
                     Date
                   </th>
+                  <th></th>
+                  <th>
+                    <input
+                      className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                      type="checkbox"
+                      value=""
+                      id="checkboxDefault"
+                      checked={selectAllItems}
+                      onChange={(event) =>
+                        handleSelectAllChange(event.target.checked)
+                      }
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -257,13 +317,23 @@ export default function Home() {
                         : null}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">{item.date}</td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="flex justify-center items-center whitespace-nowrap px-6 py-4">
                       <button
                         className="px-3 py-1.5 rounded-sm border-[1px] border-white hover:bg-blue-700 hover:drop-shadow-lg"
                         onClick={() => handleDownload(getValueToDownload(item))}
                       >
                         download
                       </button>
+                    </td>
+                    <td>
+                      <input
+                        className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                        type="checkbox"
+                        value=""
+                        id={`checkbox_${index}`} // Unique id for each checkbox
+                        checked={individualCheckboxes[index]} // Use an array to manage individual checkbox states
+                        onChange={() => handleIndividualCheckboxChange(index)}
+                      />
                     </td>
                   </tr>
                 ))}
