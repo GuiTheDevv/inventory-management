@@ -50,22 +50,32 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-      data = response;
-    } else if (identificationString == "Invoice") {
+      if (response.ok) {
+        data = await response.json();
+      }
+    } else if (identificationString == "Invoices") {
       const response = await fetch(`/api/downloadInvoice`, {
         method: "POST",
         body: formData,
       });
-      data = response;
+      if (response.ok) {
+        data = await response.json();
+        data = data.invoice;
+      }
     }
+
+    console.log(data);
+
+    var dataArray = [];
+    dataArray.push(data);
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
       "Date,Name,Memo,DebitAccount,CreditAccount,Debit,Credit\n" +
-      data
+      dataArray
         .map(
           (item: any) =>
-            `${item.date},${item.customer_name},${item.debit_account},${item.credit_account},${item.debit},${item.credit}`
+            `${item.date},${item.customer_name},${item.invoice_number},${item.invoice_number},${item.invoice_number},${item.invoice_number}`
         )
         .join("\n");
 
@@ -148,9 +158,9 @@ export default function Home() {
   };
 
   return (
-    <main className="bg-blue-300 w-full min-h-screen h-auto">
-      <div className="w-full flex justify-center">
-        <div className="w-3/4 my-12 bg-blue-900 rounded-md px-12 pb-20 drop-shadow-lg">
+    <main className="bg-blue-300 w-auto md:w-full min-h-screen h-auto overflow-auto">
+      <div className="w-fit px-3 md:w-full flex justify-center">
+        <div className="w-full lg:w-3/4 my-12 bg-blue-900 rounded-md px-3 lg:px-12 pb-20 drop-shadow-lg">
           <div className="flex items-center gap-5 justify-center text-black py-7">
             <div className="flex flex-col items-center my-5">
               <label htmlFor="StartDateInput" className="mb-1 text-white">
@@ -197,16 +207,14 @@ export default function Home() {
               <div>
                 <span className="rounded-md shadow-sm">
                   <select
+                    id="Selection"
+                    name="selection"
+                    defaultValue=""
                     onChange={handleOptionChange}
                     className="block text-black cursor-pointer appearance-none w-full border border-gray-300 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-blue-500"
                   >
-                    <option
-                      value=""
-                      disabled
-                      selected
-                      className="cursor-pointer"
-                    >
-                      Select ...
+                    <option value="" disabled selected hidden>
+                      Select...
                     </option>
                     <option value="Transfer Orders" className="cursor-pointer">
                       Transfer Orders
@@ -215,19 +223,19 @@ export default function Home() {
                       Sales Order
                     </option>
                     <option value="Shipment Orders" className="cursor-pointer">
-                      Shipmeant Orders
+                      Shipment Orders
                     </option>
                     <option value="Invoices" className="cursor-pointer">
                       Invoices
                     </option>
-                    <option value="Purchaise Orders" className="cursor-pointer">
-                      Purchaise Orders
+                    <option value="Purchase Orders" className="cursor-pointer">
+                      Purchase Orders
                     </option>
                     <option
-                      value="Purchaise Receives"
+                      value="Purchase Receives"
                       className="cursor-pointer"
                     >
-                      Purchaise Receives
+                      Purchase Receives
                     </option>
                   </select>
                 </span>
@@ -249,7 +257,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col w-full justify-center items-center text-white">
             <p className="text-3xl font-semibold tracking-wide border-b-2 mb-12 border-white">
-              VIEW ITEMS FOR DOWNLOAD
+              VIEW ITEMS
             </p>
             <table className="min-w-full text-left text-sm font-light">
               <thead className="border-b font-medium dark:border-neutral-500">
@@ -271,9 +279,11 @@ export default function Home() {
                   <th></th>
                   <th>
                     <input
-                      className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                      className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-white dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
                       type="checkbox"
                       value=""
+                      name="checkboxDefault"
+                      title="checkboxDefault"
                       id="checkboxDefault"
                       checked={selectAllItems}
                       onChange={(event) =>
@@ -327,9 +337,11 @@ export default function Home() {
                     </td>
                     <td>
                       <input
-                        className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-neutral-600 dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
+                        className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-white dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
                         type="checkbox"
                         value=""
+                        title={`checkbox_${index}`}
+                        name={`checkbox_${index}`}
                         id={`checkbox_${index}`} // Unique id for each checkbox
                         checked={individualCheckboxes[index]} // Use an array to manage individual checkbox states
                         onChange={() => handleIndividualCheckboxChange(index)}

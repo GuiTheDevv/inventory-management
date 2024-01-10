@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   // Fetch access token
   const access = await getToken();
-  const invoice = await downloadInvoice();
+  const data = await downloadInvoice();
 
-  return NextResponse.json({ invoice });
+  return NextResponse.json({ invoice: data.invoice });
 }
