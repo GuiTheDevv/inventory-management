@@ -20,12 +20,10 @@ export async function POST(req: NextRequest) {
 
   const getSalesOrder = async () => {
     try {
-      // const url = `https://www.zohoapis.com/inventory/v1/salesorders?organization_id=837554536/from_date=${body.get(
+      const url = `https://www.zohoapis.com/inventory/v1/salesorders?organization_id=837554536`;
+      // const url = `https://inventory.zoho.com/api/v1/reports/salesbysalesperson?page=1&per_page=500&organization_id=837554536&from_date=${body.get(
       //   "startDate"
-      // )}/to_date=${body.get("endDate")}`;
-      const url = `https://inventory.zoho.com/api/v1/reports/salesbysalesperson?page=1&per_page=500&organization_id=837554536&from_date=${body.get(
-        "startDate"
-      )}&to_date=${body.get("endDate")}`;
+      // )}&to_date=${body.get("endDate")}`;
       const authToken = access.access_token;
       const response = await axios.get(url, {
         headers: {
