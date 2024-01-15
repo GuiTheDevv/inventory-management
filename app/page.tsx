@@ -72,8 +72,6 @@ export default function Home() {
       }
     }
 
-    console.log(data);
-
     var dataArray = [];
     dataArray.push(data);
 
@@ -96,12 +94,10 @@ export default function Home() {
   }
 
   async function handleDownloadBySelection() {
-    console.log(selectedArrayToDownload);
     selectedArrayToDownload.forEach(async (item) => {
       var data: any;
       const formData = new FormData();
       var itemID = getValueToDownload(item);
-      console.log("itemid: ", itemID);
       formData.append("id", itemID.toString());
 
       if (identificationString == "Sales Order") {
@@ -122,8 +118,6 @@ export default function Home() {
           data = data.invoice;
         }
       }
-
-      console.log(data);
 
       var dataArray = [];
       dataArray.push(data);
@@ -257,7 +251,6 @@ export default function Home() {
                   setEndDate(e.target.value);
                   if (startDate >= e.target.value) {
                     setStartDate(e.target.value);
-                    console.log(startDate + " ... " + endDate);
                   }
                 }}
               />
