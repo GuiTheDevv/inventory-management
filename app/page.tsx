@@ -1,16 +1,6 @@
 "use client";
 import { useState } from "react";
 
-// type FileForConversion = {
-//   date: Date;
-//   Name: string;
-//   Memo: string;
-//   DebitAcc: string;
-//   CreditAcc: string;
-//   Debit: number;
-//   Credit: number;
-// };
-
 export default function Home() {
   const [startDate, setStartDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -22,6 +12,9 @@ export default function Home() {
   const [identificationString, setIdentificationString] =
     useState<string>("Identification");
   const [selectedArray, setSelectedArray] = useState<any[]>([]);
+  const [selectedArrayToDownload, setSelectedArrayToDownload] = useState<any[]>(
+    []
+  );
 
   const [selectAllItems, setSelectAllItems] = useState(false);
   const [individualCheckboxes, setIndividualCheckboxes] = useState(
@@ -31,13 +24,28 @@ export default function Home() {
   const handleSelectAllChange = (checked: any) => {
     setSelectAllItems(checked);
     setIndividualCheckboxes(Array(selectedArray.length).fill(checked));
+    if (checked) {
+      setSelectedArrayToDownload(selectedArray);
+    } else {
+      setSelectedArrayToDownload([]);
+    }
   };
 
   const handleIndividualCheckboxChange = (index: number) => {
     const updatedCheckboxes = [...individualCheckboxes];
     updatedCheckboxes[index] = !updatedCheckboxes[index];
     setIndividualCheckboxes(updatedCheckboxes);
-    setSelectAllItems(updatedCheckboxes.every((checkbox) => checkbox)); // Update Select All based on all checkboxes
+
+    const allChecked = updatedCheckboxes.every((checkbox) => checkbox);
+
+    // Update Select All based on all checkboxes
+    setSelectAllItems(allChecked);
+
+    // Update selectedArrayToDownload based on individual checkbox change
+    const selectedArrayToDownload = selectedArray.filter(
+      (_, i) => updatedCheckboxes[i]
+    );
+    setSelectedArrayToDownload(selectedArrayToDownload);
   };
 
   async function handleDownload(id: number) {
@@ -82,9 +90,61 @@ export default function Home() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "user_list.csv");
+    link.setAttribute("download", `${data.invoice_number}.csv`);
     document.body.appendChild(link);
     link.click();
+  }
+
+  async function handleDownloadBySelection() {
+    console.log(selectedArrayToDownload);
+    selectedArrayToDownload.forEach(async (item) => {
+      var data: any;
+      const formData = new FormData();
+      var itemID = getValueToDownload(item);
+      console.log("itemid: ", itemID);
+      formData.append("id", itemID.toString());
+
+      if (identificationString == "Sales Order") {
+        const response = await fetch(`/api/downloadSaleOrder`, {
+          method: "POST",
+          body: formData,
+        });
+        if (response.ok) {
+          data = await response.json();
+        }
+      } else if (identificationString == "Invoices") {
+        const response = await fetch(`/api/downloadInvoice`, {
+          method: "POST",
+          body: formData,
+        });
+        if (response.ok) {
+          data = await response.json();
+          data = data.invoice;
+        }
+      }
+
+      console.log(data);
+
+      var dataArray = [];
+      dataArray.push(data);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        "Date,Name,Memo,DebitAccount,CreditAccount,Debit,Credit\n" +
+        dataArray
+          .map(
+            (item: any) =>
+              `${item.date},${item.customer_name},${item.invoice_number},${item.invoice_number},${item.invoice_number},${item.invoice_number}`
+          )
+          .join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${data.invoice_number}.csv`);
+      document.body.appendChild(link);
+      link.click();
+    });
   }
 
   const getValueToDownload = (item: any) => {
@@ -101,6 +161,7 @@ export default function Home() {
 
   const handleOptionChange = async (e: any) => {
     setSelectedArray([]);
+    setSelectedArrayToDownload([]);
     if (e.target.value == "Transfer Orders") {
       const response = await fetch(`/api/getTransferOrders`, {
         method: "POST",
@@ -276,7 +337,17 @@ export default function Home() {
                   <th scope="col" className="px-6 py-4">
                     Date
                   </th>
-                  <th></th>
+                  <th
+                    scope="col"
+                    className="flex justify-center items-center whitespace-nowrap px-6 py-4"
+                  >
+                    <button
+                      className="px-3 py-1.5 rounded-sm border-[1px] border-white hover:bg-blue-700 hover:drop-shadow-lg"
+                      onClick={() => handleDownloadBySelection()}
+                    >
+                      download
+                    </button>
+                  </th>
                   <th>
                     <input
                       className="ml-[1.5rem] mr-[6px] mt-[0.15rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-primary checked:bg-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:-mt-px checked:after:ml-[0.25rem] checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-l-0 checked:after:border-t-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:-mt-px checked:focus:after:ml-[0.25rem] checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-l-0 checked:focus:after:border-t-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent dark:border-white dark:checked:border-primary dark:checked:bg-primary dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
